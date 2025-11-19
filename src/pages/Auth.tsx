@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Smile } from "lucide-react";
 import { toast } from "sonner";
 
@@ -38,8 +39,15 @@ const Auth = () => {
     const password = formData.get("password") as string;
     const firstName = formData.get("firstName") as string;
     const lastName = formData.get("lastName") as string;
+    const role = formData.get("role") as string;
 
-    const { error } = await signUp(email, password, firstName, lastName);
+    if (!role) {
+      toast.error("Please select a role");
+      setIsLoading(false);
+      return;
+    }
+
+    const { error } = await signUp(email, password, firstName, lastName, role);
     
     if (error) {
       toast.error(error.message || "Failed to sign up");
@@ -136,6 +144,22 @@ const Auth = () => {
                     type="password"
                     required
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="role">Role</Label>
+                  <Select name="role" required>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select your role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="scientific_director">Scientific Director</SelectItem>
+                      <SelectItem value="values_reviewer">Values Reviewer</SelectItem>
+                      <SelectItem value="project_manager">Project Manager</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    For demo purposes - choose the role you want to test
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Creating account..." : "Sign Up"}
