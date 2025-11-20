@@ -76,7 +76,7 @@ const Approvals = () => {
     fetchPendingPatients();
   };
 
-  const canReview = userRole === "scientific_director" || userRole === "values_reviewer";
+  const canApprove = userRole === "scientific_director" || userRole === "values_reviewer";
 
   return (
     <Layout>
@@ -86,145 +86,145 @@ const Approvals = () => {
           <p className="text-muted-foreground">Review and approve pending patients</p>
         </div>
 
-        {!canReview && (
-          <Card>
+        {!canApprove && (
+          <Card className="border-amber-500/50 bg-amber-500/5">
             <CardHeader>
-              <CardTitle>Access Restricted</CardTitle>
+              <CardTitle className="text-amber-700 dark:text-amber-400">View Only Mode</CardTitle>
               <CardDescription>
-                Only Scientific Directors and Values Reviewers can approve patients.
+                You can view pending patients, but only Scientific Directors and Values Reviewers can approve or decline them.
               </CardDescription>
             </CardHeader>
           </Card>
         )}
 
-        {canReview && (
-          <div className="space-y-4">
-            {pendingPatients.map((patient) => (
-              <Card key={patient.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle>
-                        {patient.first_name} {patient.last_name}
-                      </CardTitle>
-                      <CardDescription>
-                        PDC: {patient.pdc_number} | Clinic: {patient.clinic_name}
-                      </CardDescription>
-                    </div>
-                    <Badge variant="outline">Pending Review</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
+        <div className="space-y-4">
+          {pendingPatients.map((patient) => (
+            <Card key={patient.id}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-sm font-medium mb-2">Patient Story</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {patient.patient_story}
-                    </p>
+                    <CardTitle>
+                      {patient.first_name} {patient.last_name}
+                    </CardTitle>
+                    <CardDescription>
+                      PDC: {patient.pdc_number} | Clinic: {patient.clinic_name}
+                    </CardDescription>
                   </div>
-                  {patient.primoup_link && (
-                    <div>
-                      <p className="text-sm font-medium mb-2">Clinical Data</p>
-                      <Button variant="outline" size="sm" asChild>
-                        <a href={patient.primoup_link} target="_blank" rel="noopener noreferrer">
-                          View in PrimoUP
-                        </a>
-                      </Button>
-                    </div>
-                  )}
-                  <div className="flex gap-2 pt-4">
-                    <Button
-                      onClick={() => handleApproval(patient.id, "approved")}
-                      className="flex-1"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Approve
+                  <Badge variant="outline">Pending Review</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium mb-2">Patient Story</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {patient.patient_story}
+                  </p>
+                </div>
+                {patient.primoup_link && (
+                  <div>
+                    <p className="text-sm font-medium mb-2">Clinical Data</p>
+                    <Button variant="outline" size="sm" asChild>
+                      <a href={patient.primoup_link} target="_blank" rel="noopener noreferrer">
+                        View in PrimoUP
+                      </a>
                     </Button>
-                    <Dialog open={isDialogOpen && selectedPatient?.id === patient.id} onOpenChange={setIsDialogOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          onClick={() => {
-                            setSelectedPatient(patient);
-                            setIsDialogOpen(true);
-                          }}
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Request Modification
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Request Modification</DialogTitle>
-                          <DialogDescription>
-                            Provide details about what needs to be modified
-                          </DialogDescription>
-                        </DialogHeader>
-                        <Textarea
-                          value={notes}
-                          onChange={(e) => setNotes(e.target.value)}
-                          placeholder="Enter modification details..."
-                          rows={4}
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => handleApproval(patient.id, "modification_requested")}
-                            className="flex-1"
-                          >
-                            Submit
-                          </Button>
-                          <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="destructive">
-                          <XCircle className="w-4 h-4 mr-2" />
-                          Decline
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Decline Patient</DialogTitle>
-                          <DialogDescription>
-                            Please provide a reason for declining this patient
-                          </DialogDescription>
-                        </DialogHeader>
-                        <Textarea
-                          value={notes}
-                          onChange={(e) => setNotes(e.target.value)}
-                          placeholder="Enter decline reason..."
-                          rows={4}
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            variant="destructive"
-                            onClick={() => handleApproval(patient.id, "declined")}
-                            className="flex-1"
-                          >
-                            Confirm Decline
-                          </Button>
-                          <Button variant="outline" onClick={() => setNotes("")}>
-                            Cancel
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-            {pendingPatients.length === 0 && (
-              <Card>
-                <CardContent className="py-8 text-center">
-                  <p className="text-muted-foreground">No pending approvals</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        )}
+                )}
+                <div className="flex gap-2 pt-4">
+                  <Button
+                    onClick={() => handleApproval(patient.id, "approved")}
+                    className="flex-1"
+                    disabled={!canApprove}
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    Approve
+                  </Button>
+                  <Dialog open={isDialogOpen && selectedPatient?.id === patient.id} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setSelectedPatient(patient);
+                          setIsDialogOpen(true);
+                        }}
+                        disabled={!canApprove}
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Request Modification
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Request Modification</DialogTitle>
+                        <DialogDescription>
+                          Provide details about what needs to be modified
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Enter modification details..."
+                        rows={4}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={() => handleApproval(patient.id, "modification_requested")}
+                          className="flex-1"
+                        >
+                          Submit
+                        </Button>
+                        <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant="destructive" disabled={!canApprove}>
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Decline
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Decline Patient</DialogTitle>
+                        <DialogDescription>
+                          Please provide a reason for declining this patient
+                        </DialogDescription>
+                      </DialogHeader>
+                      <Textarea
+                        value={notes}
+                        onChange={(e) => setNotes(e.target.value)}
+                        placeholder="Enter decline reason..."
+                        rows={4}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          variant="destructive"
+                          onClick={() => handleApproval(patient.id, "declined")}
+                          className="flex-1"
+                        >
+                          Confirm Decline
+                        </Button>
+                        <Button variant="outline" onClick={() => setNotes("")}>
+                          Cancel
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          {pendingPatients.length === 0 && (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">No pending approvals</p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
     </Layout>
   );
